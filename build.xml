@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="EmployeeManagementSystem" default="compile" basedir=".">
+    <description>
+        A simple build file for the Employee Management System
+    </description>
+    
+    <!-- Set global properties for this build -->
+    <property name="src" location="src/main/java"/>
+    <property name="build" location="build"/>
+    <property name="dist" location="dist"/>
+    <property name="lib" location="lib"/>
+    
+    <!-- Path for compilation -->
+    <path id="classpath">
+        <fileset dir="${lib}">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+    
+    <!-- Initialize target -->
+    <target name="init">
+        <mkdir dir="${build}"/>
+        <mkdir dir="${dist}"/>
+        <mkdir dir="${lib}"/>
+        
+        <!-- Move JARs to lib if not already there -->
+        <copy todir="${lib}" flatten="true">
+            <fileset dir=".">
+                <include name="*.jar"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <!-- Compile target -->
+    <target name="compile" depends="init" description="compile the source">
+        <javac srcdir="${src}" destdir="${build}" classpathref="classpath" includeantruntime="false" debug="true" source="1.8" target="1.8">
+            <compilerarg line="-Xlint"/>
+            <include name="**/*.java"/>
+        </javac>
+    </target>
+    
+    <!-- Build JAR target -->
+    <target name="jar" depends="compile" description="create the distributable jar">
+        <jar jarfile="${dist}/EmployeeManagementSystem.jar" basedir="${build}">
+            <manifest>
+                <attribute name="Main-Class" value="ui.MainFrame"/>
+                <attribute name="Class-Path" value="${lib}/mysql-connector-j-8.0.33.jar ${lib}/jcalendar-1.4.jar"/>
+            </manifest>
+        </jar>
+    </target>
+    
+    <!-- Run target -->
+    <target name="run" depends="jar" description="run the application">
+        <java classname="ui.MainFrame" fork="true">
+            <classpath>
+                <path refid="classpath"/>
+                <path location="${dist}/EmployeeManagementSystem.jar"/>
+            </classpath>
+        </java>
+    </target>
+    
+    <!-- Clean target -->
+    <target name="clean" description="clean up">
+        <delete dir="${build}"/>
+        <delete dir="${dist}"/>
+    </target>
+</project> 
