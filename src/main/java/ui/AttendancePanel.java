@@ -57,7 +57,7 @@ public class AttendancePanel extends JPanel implements EmployeePanel.EmployeeDat
         
         employeeComboBox = new JComboBox<>();
         
-        String[] statusOptions = {"present", "absent", "late"};
+        String[] statusOptions = {"có mặt", "vắng mặt", "đi muộn"};
         statusComboBox = new JComboBox<>(statusOptions);
         
         dateChooser = new CustomJDateChooser();

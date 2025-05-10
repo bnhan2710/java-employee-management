@@ -6,7 +6,7 @@ public class Attendance {
     private int attendanceId;
     private int employeeId;
     private Date date;
-    private String status; // "present", "absent", "late"
+    private String status; // "có mặt", "vắng mặt", "đi muộn"
     private String notes;
     
     // Default constructor

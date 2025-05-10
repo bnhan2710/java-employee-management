@@ -6,7 +6,7 @@ if not exist build mkdir build
 echo Compiling project...
 
 REM Compile the source files in the correct order
-javac -d build -cp "lib/*;." ^
+javac -verbose -d build -cp "lib/*;." ^
   src/main/java/database/*.java ^
   src/main/java/models/*.java ^
   src/main/java/dao/*.java ^
@@ -23,6 +23,7 @@ if %ERRORLEVEL% EQU 0 (
   java -cp "build;lib/*" ui.MainFrame
 ) else (
   echo Compilation failed.
+  echo Error code: %ERRORLEVEL%
 )
 
 pause 
