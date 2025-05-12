@@ -220,9 +220,9 @@ public class AttendanceDAO {
                                   ", Year=" + recordYear + 
                                   ", Status='" + status + "'");
                 
-                // Count if the month and year match AND status is "present"
+                // Count if the month and year match AND status is "có mặt"
                 if (recordMonth == month && recordYear == year) {
-                    if (status != null && status.equals("present")) {
+                    if (status != null && status.equals("có mặt")) {
                         count++;
                         System.out.println("Counted attendance record: " + date + " with status: '" + status + "'");
                     } else {
@@ -248,9 +248,9 @@ public class AttendanceDAO {
     public int countAttendanceDaysByEmployeeAndMonth(int employeeId, int month, int year) {
         int count = 0;
         
-        // Changed the SQL to use English status instead of Vietnamese
+        // Changed the SQL to use Vietnamese status
         String sql = "SELECT COUNT(*) as attendance_count FROM Attendance " +
-                     "WHERE employee_id = ? AND status = 'present' AND " +
+                     "WHERE employee_id = ? AND status = 'có mặt' AND " +
                      "MONTH(date) = ? AND YEAR(date) = ?";
         
         // Debug - print the SQL query with actual values

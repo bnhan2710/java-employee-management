@@ -8,9 +8,12 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.sql.Date;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class EmployeePanel extends JPanel {
     
@@ -25,6 +28,10 @@ public class EmployeePanel extends JPanel {
     
     // List of panels to notify when employee data changes
     private List<EmployeeDataListener> dataListeners = new ArrayList<>();
+    
+    // Format for currency in VND
+    private NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+    private DecimalFormat decimalFormat = new DecimalFormat("#,###");
     
     // Interface for panels that need to be notified of employee data changes
     public interface EmployeeDataListener {
@@ -184,7 +191,9 @@ public class EmployeePanel extends JPanel {
             employee.setHireDate(new Date(utilDate.getTime()));
             
             try {
-                double basicSalary = Double.parseDouble(basicSalaryField.getText().trim());
+                // Parse salary from the input field, removing any non-digit characters
+                String salaryText = basicSalaryField.getText().trim().replaceAll("[^0-9]", "");
+                double basicSalary = Double.parseDouble(salaryText);
                 employee.setBasicSalary(basicSalary);
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Lương cơ bản phải là một số hợp lệ", "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -215,7 +224,9 @@ public class EmployeePanel extends JPanel {
             selectedEmployee.setHireDate(new Date(utilDate.getTime()));
             
             try {
-                double basicSalary = Double.parseDouble(basicSalaryField.getText().trim());
+                // Parse salary from the input field, removing any non-digit characters
+                String salaryText = basicSalaryField.getText().trim().replaceAll("[^0-9]", "");
+                double basicSalary = Double.parseDouble(salaryText);
                 selectedEmployee.setBasicSalary(basicSalary);
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Lương cơ bản phải là một số hợp lệ", "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -283,7 +294,9 @@ public class EmployeePanel extends JPanel {
         }
         
         try {
-            double basicSalary = Double.parseDouble(basicSalaryField.getText().trim());
+            // Parse salary from the input field, removing any non-digit characters
+            String salaryText = basicSalaryField.getText().trim().replaceAll("[^0-9]", "");
+            double basicSalary = Double.parseDouble(salaryText);
             if (basicSalary < 0) {
                 JOptionPane.showMessageDialog(this, "Lương cơ bản không thể âm", "Lỗi Xác Thực", JOptionPane.ERROR_MESSAGE);
                 basicSalaryField.requestFocus();
@@ -303,7 +316,7 @@ public class EmployeePanel extends JPanel {
         phoneField.setText(employee.getPhoneNumber());
         emailField.setText(employee.getEmail());
         positionField.setText(employee.getPosition());
-        basicSalaryField.setText(String.valueOf(employee.getBasicSalary()));
+        basicSalaryField.setText(decimalFormat.format(employee.getBasicSalary()) + " VNĐ");
         
         if (employee.getHireDate() != null) {
             hireDateChooser.setDate(new java.util.Date(employee.getHireDate().getTime()));
@@ -317,7 +330,7 @@ public class EmployeePanel extends JPanel {
         phoneField.setText("");
         emailField.setText("");
         positionField.setText("");
-        basicSalaryField.setText("");
+        basicSalaryField.setText("0 VNĐ");
         hireDateChooser.setDate(java.util.Date.from(LocalDate.now().atStartOfDay().toInstant(java.time.ZoneOffset.UTC)));
         
         selectedEmployee = null;
@@ -338,7 +351,7 @@ public class EmployeePanel extends JPanel {
                 employee.getEmail(),
                 employee.getPosition(),
                 employee.getHireDate(),
-                employee.getBasicSalary()
+                decimalFormat.format(employee.getBasicSalary()) + " VNĐ"
             };
             tableModel.addRow(row);
         }
