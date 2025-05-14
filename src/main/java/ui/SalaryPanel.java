@@ -3,11 +3,6 @@ package ui;
 import dao.AttendanceDAO;
 import dao.EmployeeDAO;
 import dao.SalaryDAO;
-import models.Employee;
-import models.Salary;
-
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.math.BigDecimal;
@@ -16,6 +11,10 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import models.Employee;
+import models.Salary;
 
 public class SalaryPanel extends JPanel implements EmployeePanel.EmployeeDataListener {
     
@@ -34,6 +33,16 @@ public class SalaryPanel extends JPanel implements EmployeePanel.EmployeeDataLis
     private EmployeeDAO employeeDAO;
     private AttendanceDAO attendanceDAO;
     private Salary selectedSalary;
+    
+    // Phương thức định dạng tiền tệ
+    private String formatCurrency(BigDecimal value) {
+        if (value == null) return "";
+        // Định dạng với dấu phân cách hàng nghìn và không hiển thị thập phân
+        java.text.NumberFormat formatter = java.text.NumberFormat.getInstance(java.util.Locale.getDefault());
+        formatter.setMaximumFractionDigits(0);
+        formatter.setGroupingUsed(true);
+        return formatter.format(value);
+    }
     
     public SalaryPanel() {
         salaryDAO = new SalaryDAO();
@@ -233,7 +242,11 @@ public class SalaryPanel extends JPanel implements EmployeePanel.EmployeeDataLis
         employeeComboBox.addActionListener(e -> {
             Employee selectedEmployee = (Employee) employeeComboBox.getSelectedItem();
             if (selectedEmployee != null) {
-                basicSalaryField.setText(String.valueOf(selectedEmployee.getBasicSalary()));
+                // Định dạng lương cơ bản với dấu phân cách hàng nghìn
+                java.text.NumberFormat formatter = java.text.NumberFormat.getInstance();
+                formatter.setMaximumFractionDigits(0);
+                formatter.setGroupingUsed(true);
+                basicSalaryField.setText(formatter.format(selectedEmployee.getBasicSalary()));
             }
         });
         
@@ -254,7 +267,9 @@ public class SalaryPanel extends JPanel implements EmployeePanel.EmployeeDataLis
             salary.setWorkingDays(Integer.parseInt(workingDaysField.getText()));
             
             if (!totalSalaryField.getText().isEmpty()) {
-                salary.setTotalSalary(new BigDecimal(totalSalaryField.getText()));
+                // Xử lý chuỗi có dấu phân cách hàng nghìn
+                String totalSalaryStr = totalSalaryField.getText().replaceAll("[,.]", "");
+                salary.setTotalSalary(new BigDecimal(totalSalaryStr));
             } else {
                 int month = monthComboBox.getSelectedIndex() + 1;
                 int year = (Integer) yearComboBox.getSelectedItem();
@@ -293,7 +308,9 @@ public class SalaryPanel extends JPanel implements EmployeePanel.EmployeeDataLis
             selectedSalary.setWorkingDays(Integer.parseInt(workingDaysField.getText()));
             
             if (!totalSalaryField.getText().isEmpty()) {
-                selectedSalary.setTotalSalary(new BigDecimal(totalSalaryField.getText()));
+                // Xử lý chuỗi có dấu phân cách hàng nghìn
+                String totalSalaryStr = totalSalaryField.getText().replaceAll("[,.]", "");
+                selectedSalary.setTotalSalary(new BigDecimal(totalSalaryStr));
             } else {
                 int month = monthComboBox.getSelectedIndex() + 1;
                 int year = (Integer) yearComboBox.getSelectedItem();
@@ -359,7 +376,11 @@ public class SalaryPanel extends JPanel implements EmployeePanel.EmployeeDataLis
             
             double totalSalary = selectedEmployee.calculateSalary(workingDays, daysInMonth);
             
-            totalSalaryField.setText(new BigDecimal(totalSalary).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+            // Định dạng tổng lương với dấu phân cách hàng nghìn
+            java.text.NumberFormat formatter = java.text.NumberFormat.getInstance();
+            formatter.setMaximumFractionDigits(0);
+            formatter.setGroupingUsed(true);
+            totalSalaryField.setText(formatter.format(totalSalary));
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đúng định dạng số cho ngày làm việc",
                                          "Lỗi Tính Toán", JOptionPane.ERROR_MESSAGE);
@@ -468,11 +489,20 @@ public class SalaryPanel extends JPanel implements EmployeePanel.EmployeeDataLis
         
         Employee selectedEmployee = (Employee) employeeComboBox.getSelectedItem();
         if (selectedEmployee != null) {
-            basicSalaryField.setText(String.valueOf(selectedEmployee.getBasicSalary()));
+            // Định dạng lương cơ bản với dấu phân cách hàng nghìn
+            java.text.NumberFormat formatter = java.text.NumberFormat.getInstance();
+            formatter.setMaximumFractionDigits(0);
+            formatter.setGroupingUsed(true);
+            basicSalaryField.setText(formatter.format(selectedEmployee.getBasicSalary()));
         }
         
         workingDaysField.setText(String.valueOf(salary.getWorkingDays()));
-        totalSalaryField.setText(salary.getTotalSalary().toString());
+        
+        // Định dạng tổng lương với dấu phân cách hàng nghìn
+        java.text.NumberFormat formatter = java.text.NumberFormat.getInstance();
+        formatter.setMaximumFractionDigits(0);
+        formatter.setGroupingUsed(true);
+        totalSalaryField.setText(formatter.format(salary.getTotalSalary()));
         
         if (salary.getPayDate() != null) {
             payDateChooser.setDate(new java.util.Date(salary.getPayDate().getTime()));
@@ -542,12 +572,18 @@ public class SalaryPanel extends JPanel implements EmployeePanel.EmployeeDataLis
             String monthName = Month.of(salary.getMonth()).toString();
             monthName = monthName.charAt(0) + monthName.substring(1).toLowerCase();
             
+            // Định dạng tiền tệ cho tổng lương
+            java.text.NumberFormat formatter = java.text.NumberFormat.getInstance();
+            formatter.setMaximumFractionDigits(0);
+            formatter.setGroupingUsed(true);
+            String formattedSalary = formatter.format(salary.getTotalSalary());
+            
             Object[] row = {
                 salary.getSalaryId(),
                 employeeName,
                 monthName + " " + salary.getYear(),
                 salary.getWorkingDays(),
-                salary.getTotalSalary(),
+                formattedSalary,
                 salary.getStatus()
             };
             tableModel.addRow(row);
@@ -558,4 +594,4 @@ public class SalaryPanel extends JPanel implements EmployeePanel.EmployeeDataLis
     public void employeeDataChanged() {
         loadEmployees();
     }
-} 
+}
